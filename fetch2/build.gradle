@@ -4,18 +4,20 @@ apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-kapt'
 
+apply plugin: 'maven-publish'
+
 //apply plugin: 'com.novoda.bintray-release'
 
 buildscript {
     apply from: '../versions.gradle'
     repositories {
         google()
-        jcenter()
+        mavenCentral()
     }
     dependencies {
         classpath "com.android.tools.build:gradle:$gradle_tools_version"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-       // classpath "com.novoda:bintray-release:$novoda_bintray_version"
+        // classpath "com.novoda:bintray-release:$novoda_bintray_version"
     }
 }
 
@@ -72,14 +74,22 @@ dependencies {
     androidTestImplementation "com.android.support.test.espresso:espresso-core:$espresso_version"
 }
 
-//publish {
-//    userOrg = 'tonyofrancis'
-//    groupId = 'com.tonyodev.fetch2'
-//    artifactId = 'fetch2'
-//    publishVersion = library_version
-//    desc = 'Fetch is a simple, powerful, customizable file download manager library for Android.'
-//    website = 'https://github.com/tonyofrancis/fetch'
-//}
+task sourceJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier "source"
+}
+
+publishing {
+    publications {
+        aar(MavenPublication) {
+            groupId = 'com.tonyodev.fetch2'
+            artifactId = 'fetch2'
+            version = library_version
+            artifact(sourceJar)
+            artifact("$buildDir/outputs/aar/${project.getName()}-release.aar")
+        }
+    }
+}
 
 tasks.withType(Javadoc).all {
     enabled = false
